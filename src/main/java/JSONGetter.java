@@ -1,6 +1,5 @@
-import com.fasterxml.jackson.core.JsonParser;
+import org.json.JSONArray;
 import org.json.JSONObject;
-import org.telegram.telegrambots.api.objects.User;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,15 +10,17 @@ import java.net.URL;
 
 public class JSONGetter {
 
-    public static void main(String[] args) {
+    public String getWeather(String apiUrl) {
         try {
-            getWeather("https://api.nasa.gov/insight_weather/?api_key=DEMO_KEY&feedtype=json&ver=1.0");
+            return getResponse(apiUrl);
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            return null;
         }
     }
 
-    public static void getWeather(String apiUrl) throws IOException {
+    public String getResponse(String apiUrl) throws IOException {
         URL url = new URL(apiUrl);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.connect();
@@ -33,11 +34,13 @@ public class JSONGetter {
         }
 
         String response = streamToSting(is);
-        JSONObject jsonObj = new JSONObject(response);
-        System.out.println(jsonObj);
+        String result = parseJSON(response);
+        System.out.println(result);
+
+        return result;
     }
 
-    private static String streamToSting(InputStream stream) throws IOException {
+    private String streamToSting(InputStream stream) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         StringBuilder sb = new StringBuilder();
 
@@ -47,5 +50,25 @@ public class JSONGetter {
         }
         stream.close();
         return sb.toString();
+    }
+
+    private String parseJSON(String response) {
+        JSONObject allArrs = new JSONObject(response); // all arrays of JSON ("sol_keys","validity_checks", sols)
+        JSONArray allSols = (JSONArray)allArrs.get("sol_keys"); // seven last sols - we need the most recent
+
+        int last =  allSols.length()-1;
+        String lastSolNum = (String)allSols.get(last);
+
+        JSONObject lastSol = (JSONObject)allArrs.get(lastSolNum);
+        JSONObject temp = (JSONObject)lastSol.get("AT");
+        JSONObject wind = (JSONObject)lastSol.get("HWS");
+
+        double midTemp = (Double)temp.get("av");
+        double minTemp = (Double)temp.get("mn");
+        double maxTemp = (Double)temp.get("mx");
+        double windSpeed = (Double)wind.get("av");
+
+        return "Sol: " + lastSolNum + ", Temp: MIDDLE " + midTemp + ", MIN " + minTemp + ", MAX  " + maxTemp
+                + ". Wind speed: " + windSpeed;
     }
 }
