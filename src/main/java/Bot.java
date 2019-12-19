@@ -5,7 +5,7 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 public class Bot extends TelegramLongPollingBot {
     private String URL = "https://api.nasa.gov/insight_weather/?api_key=DEMO_KEY&feedtype=json&ver=1.0";
-    JSONGetter getter;
+    JSONGetter getter = new JSONGetter();
     // processing received messages
     public void onUpdateReceived(Update update) {
         update.getUpdateId();
@@ -20,7 +20,6 @@ public class Bot extends TelegramLongPollingBot {
                 e.printStackTrace();
             }
         }
-
     }
 
     // bot name 4 telegram server
