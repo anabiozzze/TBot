@@ -8,7 +8,7 @@ public class BotMain {
         TelegramBotsApi botAPI = new TelegramBotsApi();
 
         try {
-            botAPI.registerBot(new Bot());
+            botAPI.registerBot(new Bot("https://api.nasa.gov/insight_weather/?api_key=DEMO_KEY&feedtype=json&ver=1.0"));
         } catch (TelegramApiRequestException e) {
             e.printStackTrace();
         }

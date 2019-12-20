@@ -4,8 +4,12 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 public class Bot extends TelegramLongPollingBot {
-    private String URL = "https://api.nasa.gov/insight_weather/?api_key=DEMO_KEY&feedtype=json&ver=1.0";
-    JSONGetter getter = new JSONGetter();
+    JsonGetter jsonResponse;
+
+    public Bot(String URL) {
+        this.jsonResponse = new JsonGetter(URL);
+    }
+
     // processing received messages
     public void onUpdateReceived(Update update) {
         update.getUpdateId();
@@ -13,7 +17,7 @@ public class Bot extends TelegramLongPollingBot {
         sendMessage.setChatId(update.getMessage().getChatId()); // who writes?
 
         if (update.getMessage().getText().equals("Salute!")) {
-            sendMessage.setText(getter.getWeather(URL)); // set new message
+            sendMessage.setText(jsonResponse.getResponse()); // set new message
             try {
                 execute(sendMessage); // sending message
             } catch (TelegramApiException e) {

@@ -9,13 +9,17 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class JSONGetter {
+public class JsonGetter {
 
-    public static void main(String[] args) {
-        getWeather("https://api.nasa.gov/insight_weather/?api_key=DEMO_KEY&feedtype=json&ver=1.0");
+    protected String response;
+
+    public JsonGetter(String url) {
+        response = getWeather(url);
     }
 
-    public static String getWeather(String apiUrl) {
+    public String getResponse() { return response; }
+
+    private String getWeather(String apiUrl) {
         try {
             return getResponse(apiUrl);
         } catch (IOException e) {
@@ -24,7 +28,7 @@ public class JSONGetter {
         return "Sorry, we out of line!";
     }
 
-    public static String getResponse(String apiUrl) throws IOException {
+    private String getResponse(String apiUrl) throws IOException {
         URL url = new URL(apiUrl);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.connect();
@@ -44,7 +48,7 @@ public class JSONGetter {
         return result;
     }
 
-    private static String streamToSting(InputStream stream) throws IOException {
+    private String streamToSting(InputStream stream) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         StringBuilder sb = new StringBuilder();
 
@@ -56,7 +60,7 @@ public class JSONGetter {
         return sb.toString();
     }
 
-    private static String parseJSON(String response) {
+    private String parseJSON(String response) {
         JSONObject allArrs = new JSONObject(response); // all arrays of JSON ("sol_keys","validity_checks", sols)
         JSONArray allSols = (JSONArray)allArrs.get("sol_keys"); // seven last sols - we need the most recent
 
