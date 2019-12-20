@@ -1,3 +1,5 @@
+package controller;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -9,27 +11,32 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class JsonGetter {
+public class JsonParser {
+    private String response;
+    private String urlAPI;
 
-    protected String response;
-
-    public JsonGetter(String url) {
-        response = getWeather(url);
+    public JsonParser(String url) {
+        urlAPI = url;
     }
 
-    public String getResponse() { return response; }
+    public String getResponse() {
+        getWeather();
+        return response;
+    }
 
-    private String getWeather(String apiUrl) {
+    // getting string with the required data
+    private void getWeather() {
         try {
-            return getResponse(apiUrl);
+            String sts = streamToSting(getStream());
+            response = parseJSON(sts);
         } catch (IOException e) {
+            response = "Sorry, we out of line!";
             e.printStackTrace();
         }
-        return "Sorry, we out of line!";
     }
 
-    private String getResponse(String apiUrl) throws IOException {
-        URL url = new URL(apiUrl);
+    private InputStream getStream() throws IOException {
+        URL url = new URL(urlAPI);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.connect();
 
@@ -41,13 +48,10 @@ public class JsonGetter {
             is = connection.getInputStream();
         }
 
-        String response = streamToSting(is);
-        String result = parseJSON(response);
-        System.out.println(result);
-
-        return result;
+        return is;
     }
 
+    // "raw" string not passed parsing
     private String streamToSting(InputStream stream) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         StringBuilder sb = new StringBuilder();
@@ -60,6 +64,7 @@ public class JsonGetter {
         return sb.toString();
     }
 
+    // parsing JSON page to the required string
     private String parseJSON(String response) {
         JSONObject allArrs = new JSONObject(response); // all arrays of JSON ("sol_keys","validity_checks", sols)
         JSONArray allSols = (JSONArray)allArrs.get("sol_keys"); // seven last sols - we need the most recent
@@ -117,13 +122,13 @@ public class JsonGetter {
             date = (String)pastSol.get("Last_UTC");
         }
 
-        String time = date.substring(11, 19);
-        date = date.substring(0, 10);
+        String time = date.substring(11, 16);
+        date = date.substring(2, 10);
 
-        String result = "Mars date: " + currSolNum + " sol of mission" +
-                "\nEarth date: " + date + "; " + time +
-                "\nTemp: MIDDLE " + midTemp + ", MIN " + minTemp +
-                ", MAX " + maxTemp + "\nWind Speed: " + windSpeed;
+        String result = midTemp + "c°" +
+                "\n" + windSpeed + "→" +
+                "\n" + currSolNum + " sol" +
+                "\n" + date + "; " + time;
 
         return result;
     }

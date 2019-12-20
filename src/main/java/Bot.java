@@ -1,25 +1,31 @@
-import org.telegram.telegrambots.api.methods.send.SendMessage;
+import controller.Controller;
+import org.telegram.telegrambots.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
+import java.io.File;
+
 public class Bot extends TelegramLongPollingBot {
-    JsonGetter jsonResponse;
+    private SendPhoto msg;
+    Controller controller;
 
     public Bot(String URL) {
-        this.jsonResponse = new JsonGetter(URL);
+        msg = new SendPhoto();
+        controller = new Controller(URL);
+        controller.getResponse();
+        controller.getImg();
     }
 
     // processing received messages
     public void onUpdateReceived(Update update) {
         update.getUpdateId();
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(update.getMessage().getChatId()); // who writes?
+        if (update.getMessage().getText().equals("/start")) {
+            msg.setChatId(update.getMessage().getChatId());
+            msg.setNewPhoto(new File("src/main/resources/imageResult.png"));
 
-        if (update.getMessage().getText().equals("Salute!")) {
-            sendMessage.setText(jsonResponse.getResponse()); // set new message
             try {
-                execute(sendMessage); // sending message
+                sendPhoto(msg);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
@@ -35,7 +41,5 @@ public class Bot extends TelegramLongPollingBot {
     public String getBotToken() {
         return "1032392272:AAHWSg_chn6IMB5HrOfmNvswA1mWbb56YRI";
     }
-
-
 }
 
