@@ -73,6 +73,7 @@ public class JsonParser {
         int today =  allSols.length()-1;
         String currSolNum = (String)allSols.get(today);
         JSONObject currSol = (JSONObject)allArrs.get(currSolNum);
+        System.out.println(currSolNum);
 
         // Last Sol: Just for case. All data should be present.
         int yesterday =  allSols.length()-2;
@@ -116,6 +117,7 @@ public class JsonParser {
         // Trying to get today data, if can't - the using yesterday's data
         try {
             date = (String)currSol.get("Last_UTC");
+            System.out.println();
         } catch (JSONException e) {
             e.printStackTrace();
             System.out.println("Today date and time is not available yet.");
@@ -123,12 +125,12 @@ public class JsonParser {
         }
 
         String time = date.substring(11, 16);
-        date = date.substring(2, 10);
+        String formattedDate = date.substring(8, 10) + "-" + date.substring(5, 7) + "-" + date.substring(2, 4);
 
         String result = midTemp + "c°" +
                 "\n" + windSpeed + "→" +
                 "\n" + currSolNum + " sol" +
-                "\n" + date + "; " + time;
+                "\n" + formattedDate + "; " + time;
 
         return result;
     }
